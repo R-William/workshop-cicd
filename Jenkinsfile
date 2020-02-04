@@ -38,10 +38,10 @@ pipeline {
             steps {
                 echo 'Analyze' 
                 dir('code/backend'){
-                    sh 'npm lint'  
+                    sh 'npm run lint'  
                 }
                 dir('code/frontend'){
-                    sh 'npm lint'  
+                    sh 'npm run lint'  
                 }
             }
         }
@@ -52,26 +52,28 @@ pipeline {
             steps {
                 echo 'Test'
                 dir('code/backend'){
-                    sh 'npm test'  
+                    sh 'npm run test'  
                 }
                 dir('code/frontend'){
-                    sh 'npm test'  
+                    sh 'npm run test'  
                 }
             }
         }
         stage('e2e Test') {
             steps {             
                 echo 'e2e Test'
-                sh 'docker-compose -f docker-compose.yml build'
-                sh 'docker-compose -f docker-compose-e2e.yml build'
-                sh 'docker-compose -f docker-compose.yml up -d'
-                sh 'docker-compose -f docker-compose-e2e.yml up -d frontend backend'
-                sh 'docker-compose -f docker-compose-e2e.yml down --rmi=all -v'
-                script {
-                    sh 'docker-compose -f docker-compose-e2e.yml up e2e'
-                    status_code = echo ( script: "docker inspect code_e2e_1 --format='{{.State.ExitCode}}'", returnStdout: true).trim();
-                    if (status_code == '1'){
-                        error('e2e test failed.')
+                dir('ci/jenkens'){
+                    sh 'docker-compose -f docker-compose.yml build'
+                    sh 'docker-compose -f docker-compose-e2e.yml build'
+                    sh 'docker-compose -f docker-compose.yml up -d'
+                    sh 'docker-compose -f docker-compose-e2e.yml up -d frontend backend'
+                    sh 'docker-compose -f docker-compose-e2e.yml down --rmi=all -v'
+                    script {
+                        sh 'docker-compose -f docker-compose-e2e.yml up e2e'
+                        status_code = echo ( script: "docker inspect code_e2e_1 --format='{{.State.ExitCode}}'", returnStdout: true).trim();
+                        if (status_code == '1'){
+                            error('e2e test failed.')
+                        }
                     }
                 }
             }
