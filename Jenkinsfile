@@ -22,7 +22,15 @@ pipeline {
                 docker { image 'node:alpine' }
             }
             steps {
-                echo 'Build'      
+                echo 'Build'  
+                dir('code/backend'){
+                    echo 'npm i'
+                    echo 'npm b'    
+                }
+                dir('code/frontend'){
+                    echo 'npm i'
+                    echo 'npm b'    
+                }
             }
         }
         stage('Static Analysis') {
@@ -31,6 +39,12 @@ pipeline {
             }
             steps {
                 echo 'Analyze' 
+                dir('code/backend'){
+                    echo 'npm lint'  
+                }
+                dir('code/frontend'){
+                    echo 'npm lint'  
+                }
             }
         }
         stage('Unit Test') {
@@ -39,11 +53,29 @@ pipeline {
             }
             steps {
                 echo 'Test'
+                dir('code/backend'){
+                    echo 'npm test'  
+                }
+                dir('code/frontend'){
+                    echo 'npm test'  
+                }
             }
         }
         stage('e2e Test') {
             steps {             
                 echo 'e2e Test'
+                echo 'docker-compose -f docker-compose.yml build'
+                echo 'docker-compose -f docker-compose-e2e.yml build'
+                echo 'docker-compose -f docker-compose.yml up -d'
+                echo 'docker-compose -f docker-compose-e2e.yml up -d frontend backend'
+                echo 'docker-compose -f docker-compose-e2e.yml down --rmi=all -v'
+                script {
+                echo 'docker-compose -f docker-compose-e2e.yml up e2e'
+                status_code = echo ( script: "docker inspect code_e2e_1 --format='{{.State.ExitCode}}'", returnStdout: true).trim();
+                if (status_code == '1'){
+                    error('e2e test failed.')
+                }
+                }
             }
             post {
                 always {
