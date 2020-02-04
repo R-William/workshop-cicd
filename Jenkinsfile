@@ -9,6 +9,12 @@ pipeline {
             }
             steps {
                 echo 'Prepare'
+                dir('code/backend'){
+                    sh 'npm install'
+                }
+                dir('code/frontend'){
+                    sh 'npm install'
+                }
             }
         }
         stage('Build') {
@@ -48,6 +54,11 @@ pipeline {
         stage('Deploy') {
             steps {                
                 echo 'Deploy'
+            }
+        }
+        stage('TestStage') {
+            steps {                
+                echo 'Dancing'
             }
         }
     }
