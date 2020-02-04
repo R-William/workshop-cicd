@@ -24,11 +24,9 @@ pipeline {
             steps {
                 echo 'Build'  
                 dir('code/backend'){
-                    sh 'npm i'
                     sh 'npm b'    
                 }
                 dir('code/frontend'){
-                    sh 'npm i'
                     sh 'npm b'    
                 }
             }
