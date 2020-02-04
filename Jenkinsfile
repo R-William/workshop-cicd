@@ -24,10 +24,10 @@ pipeline {
             steps {
                 echo 'Build'  
                 dir('code/backend'){
-                    sh 'npm b'    
+                    sh 'npm run build'    
                 }
                 dir('code/frontend'){
-                    sh 'npm b'    
+                    sh 'npm run build'    
                 }
             }
         }
